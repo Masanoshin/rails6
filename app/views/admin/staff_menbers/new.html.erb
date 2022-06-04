@@ -1,0 +1,36 @@
+<% @title = "職員の新規登録" %>
+<h1><%= @title %></h1>
+
+<div id="generic-form">
+  <%= form_with model: @staff_menber, url: [ :admin, @staff_menber] do |f| %>
+    <%# URLオプションに配列を指定していますこの場合、配列全体からフォームデータの送信先URLパスが生成されます
+    その送信先URLパスは/admin/staff_menbersとなるまた、@staff_menberにセットされているオブジェクトがデータベース未保存のためcreateアクションにフォームが送信されるようになっている
+     %>
+    <%= render 'form', f: f %>
+    <%# partialオプション
+partialオプションは部分テンプレートを呼び出す時に使います。
+「呼び出しているのは部分テンプレートだよ」と強調したいだけなので、つけなくても構いません。
+
+ですがlocalsオプションを使用した時はつけないとエラーが出ます。
+
+localsオプション
+localsオプションを使うと部分テンプレート内で使う変数の定義をすることができます。
+例えば部分テンプレート内で変数を使いたい場合、どこかで変数を定義する必要がありますね。
+そんな時にはlocalsオプションを使って変数を定義します。 %>
+<%# 述したとおりlocalsオプションを使った場合はpartialは省略できません。
+partialを省略して書きたければ下記のように必ずlocalsオプションも省略しないといけないので注意しましょう。
+
+<%= render 'hoge', hoge: hoge %>
+
+<!-- localsオプションを記述しているとエラー -->
+<%# <%= render 'hoge', locals: { hoge: hoge } => エラーが発生 %>  
+    <%# formという名前の部分テンプレートを挿入している。その後にあるf:fの右側はform_withメソッドのブロック変数fです
+    そして左側は部分テンプレートないでこのフォームビルダーを参照するためのメソッドの名前です
+     %>
+<div class="buttons">
+<%= f.submit "登録" %>
+<%= link_to "キャンセル", :admin_staff_menbers %>
+</div>
+  <% end %>
+
+</div>

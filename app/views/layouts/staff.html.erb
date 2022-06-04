@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= document_title %></title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%# <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %> 
+     <%# このページに読み込むCSSファイルを指定するメソッド
+    第一引数にCSSファイルの名前を指定する このapplication を指定すると実際に読み込まれるのはapp/assets/stylesheet ディレクトリにあるapplicatinon.css　%>
+  <%= stylesheet_link_tag 'staff', media: 'all', 'data-turbolinks-track': 'reload' %>
+
+    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %> <%# javascript_pack_tag も　app/jjavascripts/pacjs　ディレクトリに入っているjavascriptファイルを読み込む %>
+  </head>
+
+  <body>
+
+  <div id="wrapper">
+    <%= render "staff/shared/header" %> <%# render メソッドは部分テンプレートを埋め込むことができる　ERBテンプレートである%>
+    <%# 部分テンプレートはファイルを　_で始める規則がある %>
+    <div id="container">
+    <%= yield %>
+    </div>
+
+    <%= render "shared/footer" %>
+
+  </body>
+</html>

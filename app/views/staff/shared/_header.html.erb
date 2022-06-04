@@ -1,0 +1,17 @@
+<header>
+  <%= link_to "baukis2", :staff_root, class: "log-mark" %>
+  <%= content_tag(:span, flash.notice, class: "notice") if flash.notice %>
+  <%# <% if flash.notice %> 
+   <%# <span class="notice"><%= flash.notice </span>  %>
+  <%# <% end %> 
+  <%= content_tag(:span, flash.alert, class: "alert") if flash.alert %>
+  <%= 
+  if current_staff_menber 
+    link_to "ログアウト", :staff_session, method: :delete
+  else 
+    link_to "ログイン", :staff_login
+  end
+  %>
+
+  <%= link_to "アカウント", :staff_account if current_staff_menber %>
+</header>

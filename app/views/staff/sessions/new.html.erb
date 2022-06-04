@@ -1,0 +1,23 @@
+<% @title = "ログイン" %>
+
+<div id="login-form">
+  <h1><%= @title %></h1>
+
+  <%= form_with model: @form, url: :staff_session do |f| %>
+  <div>
+  <%# staff_login_form[email]というnameが作成されますが、これをパラメーターと呼びます 
+    そして、パラメーターに[]が含まれている場合、その前の方をプレフィックスといい、[]の中をフィールド名と呼ぶ
+    プレフィックスはform_withメソッドのmodelオプションに指定したオブジェクトのクラス名から導き出されます
+    また、form_withメソッドのscopeオプションを用いればプレフィックスを変更できます%>
+    <%= f.label :email, "メールアドレス" %>
+    <%= f.text_field :email %>
+  </div>
+  <div>
+    <%= f.label :password, "パスワード" %>
+    <%= f.password_field :password %>
+  </div>
+  <div>
+    <%= f.submit "ログイン" %>
+  </div>
+  <% end %>
+</div>

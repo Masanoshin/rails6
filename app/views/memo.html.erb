@@ -1,0 +1,382 @@
+  <%# <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %> 
+     <%# このページに読み込むCSSファイルを指定するメソッド
+    第一引数にCSSファイルの名前を指定する このapplication を指定すると実際に読み込まれるのはapp/assets/stylesheet ディレクトリにあるapplicatinon.css　%>
+  <%# stylesheet_link_tag 'admin', media: 'all', 'data-turbolinks-track': 'reload' %>
+
+css内部(application.css)
+ <%# *
+ *= require_tree .
+ *= require_self
+ */
+
+ /* assetsのファイルのことをアセットパイプラインという
+
+sassはcssを拡張したスライルシートであるブラウザはsassを理解できないでサーバーがわでコンパイルを行う必要がある
+Sassはインデント（字下げ）によって構造を表現するオリジナルの書式と波括弧{}によって構造を表現するSCSSがある 
+ここに書かれいてる　＊で始まる行はディレクティブと呼ばれここでアセットパイプラインの設定を行う
+require_tree .　ではアセットパイプラインが処理をするファイルの範囲を設定している
+ここではドット(.)すなわち　app/assets/stylesheets ディレクトリ以下の全ファイルを処理対象としています
+ここで require_tree ./~~ とすることで処理対象のディレクトリを限定することができる
+require_self　は自分自身に書かれているものも処理対象とすると記述している
+
+*/ %>
+
+
+productionモード
+railsアプリケーションにはdevelopment test productionという３つの動作モードがあり、
+少しずつ振る舞いが異なる
+これまで使用してきた、rails s コマンドで起動したものはデフォルトのdevelopmentモードで動く
+prodectionモードは実運用で使用されるたもの動作モードです
+このモードはコードが書き終わってもアプリケーションはリロードされず起動時の状態で動作し続けます
+また、railsアプリケーション自体が画像ファイルjavascriptファイルCSSファイルをブラウザに返さなくなる
+実用環境では通常apacheやnginxなどWEBサーバーがこれらのファイルをとり扱うからです
+
+
+エラーページ(p90)
+例外:プログラミング言語における例外とは変則的な自体のことです。
+例外が発生するとソフトウェアは通常の流れから外れて特別な処理に移行します。
+ruby言語には例外を表現するためのExceptionクラスが用意されています
+またExceptionは ActiveRecoed::ActiveRecordError←StandardError←Exception
+のようになっている
+
+raiseメソッド例外を発生させるにはraiseメソッドを使用します。
+railseメソッドは第一h記数に例外クラス名、第二引数（省略可）には例外を説明するメッセージを指定します
+ArgumentError(引数が間違っていることを示す例外StanderdError)を継承
+raise ArgumentError, "the first argument must be a string"
+
+クラスメソッド rescue_from
+rails のコントローラーにはrescue_fromというクラスメソッドが用意されていてコントローラー内で発生した例外の処理方法を簡単に指定できます
+rescue_from Forbidden, with: :rescue403
+上記をApplicationControllerクラスの定義のなかで記述すれば人のアクションにおいて例外が発生した時にアクションが中断されてメソッドrescue403に処理が移行します
+次に示すのはrescue403の実装です
+private def rescue403(e)
+  @exception = e
+  render template: "errors/Forbidden", status:403
+end
+statusオプションはHTTPレスポンスのステータスコードである
+
+HTTPレスポンスのステータスコードとはクライアントからのリクエストの結果を示す３桁の整数値です
+通常はリクエストが成功したことを示すステータスコード200を返し明日が、ここではアクセス権限がないことを示すステータスコード403を返しています
+HTTPレスポンスコード500はWEBサーバーでなんらかのエラーが発生したことを示します
+
+404エラーはリソースが２つからないことを意味します
+
+
+モジュールの抽出
+コードがかさむ時などはモジュールとして抽出する
+
+
+rails g model StaffMenber すると3つのファイルが作成される
+db/migrate/20220124050203_create_staff_menbers.rb
+app/models/staff_menber.rb
+spec/models/staff_menber_spec.rb
+migrateファイルはデータベースの構造を更新するRubyのスクリルと
+２つ目のファイルはStaffMenberクラスを定義するファイル
+３つ目のファイルはStaffMenberクラスのspecファイルとなる
+それらを削除する際には rails destory model XXXXX
+とすると削除できる
+migrationの基本的な書き方
+t.string :email, null: false 
+index(索引)の設定
+カラムにインデックスを作成する目的はそのカラムを用いた検索やソートの高速化です
+また、unique: trueオプションなどがありこれは、一意性制約を化すことができる
+マイグレーション:マイグレーションスクリプトを実行してデータベースの構造を変更することをいう
+rails db:migrate
+実行時にエラーが発生した場合はrails db:migrate:reset
+を実行する、これはデータベースを一度削除して新たにデータベースを作成する
+主キー
+staff_menberのテーブルがどのようなカラムを持っているか調べるためには次のコマンドが便利です
+rails r "StaffMenber.columns.each { |c| p [c.name, c.type] }"
+id以外の名前を手記にー採用したい場合はcreate_tableメソッドのprimary_keyオプションでしてする
+主キーの名前をmenber_idにしたい場合は
+create_table :staff_menbers. primary_key: "member_id" do |t| に変更する
+
+activeRecord はRubyonRails の主要なコンポーネントの１つですその役割はrubyの世界のリレーショナルデータベースの世界を結びつけることです
+rubyの基本要素はオブジェクトです。リレーショナルデータベースの基本要素はリレーションです
+そこで、ActiveRecodeのようなソフトウェアのことを一般的にオブジェクトリレーショナルマッパーと呼びます
+テーブルとテーブルの間の関係性は関連付け(association)と呼びます
+
+モデルとは
+ActiveRecoedが提供する基底クラスがActiveRecord::Baseです
+このクラスを継承したクラスをモデルクラスあるいはモデルと良い、そのインスタンスをモデルオブジェクトと呼びます
+ApplicationRecordクラスがActiveRecord::Baseを継承し、StaffMenberクラスがApplicationRecordクラス継承しています
+StaffMenberクラスはモデルクラスです
+
+シードデータseed.rbの投入シードデータとはrailsアプリケーションを正常に機能させるために予めデータベースに投入しておくことです
+
+セッション
+セッションとはアプリケーション開発の文脈において３つの意味で用いられます
+１クライアントがシステムにログインしてからログアウトするまでの期間もしくは状態
+２クライアントが接続を開始してから接続を切断するまでの期間もしくは状態(普通はユーザーがブラウザを閉じると接続が切れます)
+３クライアントが接続を開始してから接続を切断するまで、Railsアプリケーションがクライアントごとに維持するデータ
+
+
+ルーティングの決定
+HTTPメソッドにはGET,POST,PATCH,DELETEがありそれぞれ取得、追加、更新、削除という操作に該当します
+railsではindex,show,new,edit,create,update,destroyの７つが基本アクションとし最初の４つはGET,残りの３つはPOST,PATCH,DELETEメソッドのためのアクションです
+
+
+chapter8
+form: formを作成するには３つ方法がありform_tagとform_for、form_withです
+form_tagが一番単純なメソッドです。
+form_tagはその名が示すとおり、基本的にhtmlのformタグを生成する能力しか持ちません。
+form_forメソッドはには引数オブジェクトを取り、そのオブジェクトの属性入力欄のデフォルト値に設定する、という便利な機能があります。
+form_withは比較的新しいメソッドで先の２つの両方の機能を結合したものになります。
+
+デフォルト設定ではform_withメソッドで作られたフォームはリモートフォームというものになります
+普通のフォームの場合ユーザーが送信ボタンをクリックするとPOSTメソッドで普通のリクエストがサーバーに送信されレスポンスに応じてブラウザの画面が切り替わります
+しかし、リモートフォームでは指定されたメソッドでAjaxリクエストが送信されます。
+この場合処理結果に応じて画面を書き換えるjavascriptを書かない限り。ブラウザの画面は変化しません
+ここではリモートホームを使用しないのでform_withメソッドが普通のフォームを作るように設定を変更します
+
+ActiveRecoed::Baseを継承したクラスのインスタンスをモデルオブジェクト、非ActiveRecordモモデルのインスタンスをフォームオブジェクトという
+form_withのmodelに指定できるものはこの２つのいずれかになる
+フォームオブジェクトを使用するとデータベースとは無関係なフォームやデータベーステーブルと１対１に結びついていないフォームをform_withメソッドで生成できます
+
+新しいforms/staffディレクトリをapp以下に作って、
+class Staff::LoginForm
+  incloude ActiveModel::Model
+
+  attr_accessor :email, :password
+end
+をlogin_form.rbに記述する
+これはActiveRecord::Baseを継承しないことと、ActiveModel::Modelをインクルードすることです
+これで、form_withのmodelオプションに指定できるようになります
+attr_accessorで定義している属性はそのままフォームのフィールド名となります
+
+paramsオブジェクト
+アクションの中でparamsメソッドを用いるとクライアント(ブラウザ)からRailsアプリケーションに送られてきたデータを保持するオブジェクトを取得できます
+これをparamsオブジェクトと呼びます
+paramsオブジェクトは一種のハッシュ(ActionController::Parametersクラスのインスタンス)であり、params[:x]のようにパラメーターの名前を指定すればその値を参照できます
+また、送信した場合は構造がハッシュになります
+staff_login_form: {
+  email: "hanako@example.com"
+  password: "foobar"
+}
+ハッシュの中にハッシュが含まれる二重構造になっています。外側のハッシュのキーはプレフィックスです
+内側のハッシュのキーはフィールド名でその値がパラメーターです
+
+
+
+サービスオブジェクト
+service objects もフォームオブジェクトと同様にrailsコミュニティの中で生み出された概念です
+独立したクラスとして実装されます
+これはアクションと同様にあるまとまった処理を行います
+
+factoryBotの初期設定
+ファクトリーボットはデータベースにテストデータを投入するためのツールです
+
+
+chapter9
+ルーティング:クライアント（ブラウザ）からHTTPリクエストとアクションの関連づけです。
+railsはHTTPリクエストの各種の属性(HTTPメソッド、URLパス、ホスト名、ポート番号、リクエスト元のIPアドレスなど)からどのコントローラーアクションが処理を受け持つべきかを判定します
+
+get "blog/:year/:month" => "articles#show"
+簡単なルーティングの設定ができる。: が使用されているとこれはcontrollerでsessionで受け取ることもかのです
+
+get "blog/:year/:month" => "articles#show", constraints:{year: /20\d\d/, month: /\d\d/} など正規表現を使用すれば値を制限することもできます
+
+ルーティングに名前を与える
+get "staff/login" => "/staffsessions#new", as: :staff_login
+asオプションを用いるとルーティングに名前を与えることができます。その結果アクションやERBテンプレートにおいてURLでパスを文字列ではなくシンボルで指定できるようになります
+例えばlink_toメソッドで/staff/loginというURLパスへのリンクを生成したいばあい
+link_to "ログイン", :staff_login
+とかけます。これは次のように書くのと同じです。 link_to "ログイン" , "/staff/login"
+シンボルでURLを表現するには主に２つメリットがあります。１つ目はプログラマが名前を書き間違えた時にエラーになることです。
+URLパスを文字列で指定した場合/staff/lohinと書き間違えてもrailsはエラーを出しません。実際にリンクを踏んでから404エラーが出て気付くことになります
+しかしURLパスにシンボル:を指定した場合はリンクもとのページを参照しただけでエラーが発生します。
+
+ルーティングのためのヘルパーメソッド
+ルーティングに名前を与えると副作用として２つのヘルパーメソッドが定義されます。
+get "login" => "sessions#new", as: :login
+このルーティングにloginという名前が与えられた結果、以下の２つのヘルパーメソッドが定義されます。
+login_path
+login_url
+前者はURLのパス部分を返し。後者はURL全体を返します。これを用いれば次のようにERBテンプレートにリンクを埋め込むことができます
+link_to "ログイン", login_path
+ヘルパーメソッドを用いるとURLにクエリパラメーターを付加することが可能になります
+link_to "ログイン" , login_path(tracking: "001")
+ この場合次のコードが生成されます <%# <a href="/login?tracking=001">ログイン</a>  %>
+ get "articles/:year/:numbre" => "articles#show" as: :article
+ これをURL_pathを利用して使う場合オプションで
+ link_to "読む" article_path(year: "2019", number:"34")
+ とする
+
+名前空間
+namespace :staff do でブロックの内側で設定されるルーティングのURLパス、コントローラー、ルーティング名に影響を及ぼします
+１URLパスの先頭に/staffが付与される
+２コントローラー名の先頭にstaff/が付与される
+３ルーティング名の先頭にstaff_が付与される
+get "login" => "sessions#new", as: :login
+上記を例にとってみると名前空間が設定されていなければURLパスは/login、コントローラ名はsessions、
+ルーティングは名は:loginですが
+名前空間:staffが設定されているのでURLパスは/staff/loginコントローラ名はstaff/sessionsルーティングパス:staff_loginとなる
+URLパスコントローラー名、ルーティング名に名前を付加される文字列を変更したい場合はnamespaceメソッドにオプションを与えてください
+URLパスの先頭に付加する文字列を変更するにはpathオプションを用います
+namespace :staff, path: "foo" do
+とするとURLは/staffから/fooに変わります
+コントローラー名の先頭に付加する文字列を静ギャするのはmoduleオプションです。
+namespace :staff, module: "foo" do
+とするとコントローラーがstaff/topからfoo/topに変わります
+コントローラークラスがStaff::TopからFoo::Topに変わることを意味する
+また、asオプションを用いればルーティング名の先頭に付加する文字列を変えられます
+namespace :staff, as: "foo" do
+このように書き換えるとルーティング名は:staff_loginから:foo_loginに変わります
+
+メンバールーティング:URLパスの中に:idが含まれているということは主キーの値が埋め込まれているということであり、アクション操作が特定のレコードを対象としている
+コレクションルーティング::idを持たないURLパスのことをいう
+
+職員のリスト表示    get "staff_menbers" => "staff_menbers#index"
+詳細表示           get "staff_menbers/:id" => "staff_menbers#show"
+登録フォーム表示    get "staff_menbers/new" => "staff_menbers#new"
+編集フォーム表示    get "staff_menber/:id/edit" => "staff_menbers#edit"
+追加              post "staff_menbers" => "staff_menbers#create"
+更新              path "staff_menbers/:id" => "staff_menbers#update"
+削除             delete "staff_menbers/:id" => "staff_menbers#destroy"
+上記を７つの基本アクションと呼ぶ
+これらをroutesではresourcesメソッドで簡単に書ける
+
+resourcesメソッドはルーティング名の設定も行う
+/admin/staff_menbers          :admin_staff_menbers
+/admin/staff_menbers/:id      :admin_staff_menber
+/admin/staff_menbers/:new     :new_admin_staff_menber
+/admin/staff_menbers/:id/edit :edit_admin_staff_menber
+名前空間adminの前にアクション名がきます
+
+resourcesメソッドオプション
+onlyやexceptオプションを指定すると７つの基本アクションのうち一部だけ似たしてルーテイングを設定できます
+次の例はadmin/staf_menbersコントローラに対してindex,new,create アクションのみに対してルーティングを設定します
+namespace :admin do
+ resorces :staff_menbers, only:[:index, :new, :create]
+end
+次はshow,destroy以外の５つのアクション似たしてルーティングを設定します
+namespace :admin do 
+ resorces :staff_menbers, except:[:show, :destory]
+end 
+
+contollerオプションを指定するとURLパスやルーティング名を変更せずにコントローラーだけを変えられます
+例えばadmin/employeesコントローラを使用したければ次のように記述する
+namespace :admin do 
+ resorces :staff_menbers, controller: "employees"
+end 
+URLパスを変更するにはpathオプションを利用してください
+admin/staff_menbersから/admin/staffに変更するには次のようにします
+namespace :admin do 
+  resorces :staff_menbers, path:"staff"
+end 
+
+単数リソース
+管理者が職員を管理する場合は職員が複数いるが一方で、職員が自分を管理するには対象となるアカウントは１つのみです。
+またその職員はログインしている前提なのでidパラメータやindexアクションは意味を持ちません
+その職員のid属性はセッションオブジェクトから取得できます
+ある文脈において1個しか存在しないようなリソースを単数リソースと呼びます
+またrailsには単数リソースを扱う場合のルーティングにも習慣がありそれを
+単数リソースの６つの基本アクションと呼びます
+アカウントの詳細表示  get /staff/account       show
+登録フォームの表示    get /staff/account/new   new
+編集フォームの表示   get /staff/account/edit   edit
+アカウントの追加    post /staff/account       create
+アカウントの更新    patch /staff/account      update   
+アカウントの削除    delete /staff/account     destroy
+
+resorceメソッドを用いると上記の６つの基本アクションを一括で設定できます
+なおコントローラ名はstaff/accounts(複数形)となる
+resorceメソッドもresorcesメソッドと同様にルーティングに名前を付与します
+/staff/account     :staff_account
+/staff/account/new :new_staff_account
+/staff/account/edit :edit_staff_accout
+
+ホスト名による制約
+通常ルーティングはHTTPメソッドとURLパスのパターンによって決まります
+しかし、HTTPリクエストのそれ以外の属性ホスト名やポート番号、リクエスト元のIPアドレスによってルーティング
+を変更することも可能ですルーティングを決めるための条件を制約(constraints)と言います
+
+
+chapter10
+
+
+chapter11
+この章ではstarong parametersについて学ぶマスアサインメント脆弱性と呼ばれるwebアプリケーション特有のセキュリティホールへの対策としてrailsが用意している仕組みです
+マスアサインメント脆弱性
+モデルオブジェクトのassign_attributesメソッドは引数にハッシュもしくはparamsオブジェクトを取り、モデルオブジェクトの属性を一括変更します
+例えばインスタンス変数@staff_menberにStaffMenberオブジェクトがセットされているとすれば、次のようにしてfamily_name属性とfamily_name_kana属性の値を変更できます
+hash = {family_name: "黒田", family_name_kane: "クロダ"}
+＠staff_menber.assign_attributes(hash)
+同様にフォームから送信されたデータを保持するparamsオブジェクトによって@staff_menberの属性を一括に変更するこもできます
+@staff_menber.assign_attributes(params[:staff_menber])
+ここで一つ懸念が生まれますフォームから送信されたデータの中に書き換えられては困る属性の値が含まれていたらどうなるでしょうか。passwordなどは勝手に書き換えられてはいけないものです
+悪意のあるユーザが書き換えるようなコードを送信することで書き換えられてしまう可能性があります
+この脆弱性をマスアサインメント脆弱性と呼びます
+strong parametersによる防御
+
+テスト飛ばした
+
+
+chapter13
+ネストされたリソース
+resources :staffmenbers do
+ resources :staff_events, only: [ :index ]
+end
+resources :staff_events, only: [ :index ]
+
+データベース
+updateメソッドは属性のハッシュを受け取り、成功時には更新と保存を続けて同時に行います（保存に成功した場合はtrueを返します）。ただし、検証に1つでも失敗すると、updateの呼び出しは失敗します。例えば6.3で実装すると、パスワードの保存を要求するようになり、検証で失敗するようになります。
+特定の属性のみを更新したい場合は、次のようにupdate_attributeを使います。このupdate_attributeには、検証を回避するといった効果もあります。
+
+redirect_to @user
+redirect_to user_path(@user)
+redirect_to user_path(@user.id)
+redirect_to user_path(1) => /user/1
+
+flashは次のリダイレクトが起こったら消えるので、redirect_toを使用しているところではflashをそのまま使用できるが、
+renderを使用しているところにはflash.nowのようにnowが必要である。
+
+# メインのサンプルユーザーを1人作成する
+User.create!(name:  "Example User",
+             email: "example@railstutorial.org",
+             password:              "foobar",
+             password_confirmation: "foobar")
+！マークは意図的に例外を起こすようにしている。
+これによりこれ以下の大量の処理を起こさせないように、している。
+
+testは一度コメントアウトして、そのテスト自体がちゃんと動いているか確認したほうがいい
+
+<%# <%= render @users %> この一行で以下の三行の挙動を示す
+  <%# <% @users.each do |user| %> 
+    <%# <%= render user %> 
+  <%# <% end %> 
+ <%= render @users %> 
+  <% @users.each do |user| %> 
+    <%= render user %> 
+   <% end %> 
+
+   rails generate model Micropost content:text user:references
+   は rails g model Micropost content:text user_id:integer の省略形
+   belongs_to :user も自動で生成してくれる
+
+   この節で定義するbelongs_to/has_many関連付けを使うことで、表 13.1に示すようなメソッドをRailsで使えるようになります。表 13.1では次のメソッドではなく
+
+Micropost.create
+Micropost.create!
+Micropost.new
+このメソッドになっていることに注意してください。
+
+user.microposts.create
+user.microposts.create!
+user.microposts.build
+これらのメソッドは使うと、紐付いているユーザーを通してマイクロポストを作成することができます（慣習的に正しい方法です）。新規のマイクロポストがこの方法で作成される場合、user_idは自動的に正しい値に設定されます。この方法を使うと、例えば次のような
+
+@user = users(:michael)
+# このコードは慣習的に正しくない
+@micropost = Micropost.new(content: "Lorem ipsum", user_id: @user.id)
+という書き方（リスト 13.4）が、次のように書き換えられます。
+
+@user = users(:michael)
+@micropost = @user.microposts.build(content: "Lorem ipsum")
+
+micropost.user	Micropostに紐付いたUserオブジェクトを返す
+user.microposts	Userのマイクロポストの集合をかえす
+user.microposts.create(arg)	userに紐付いたマイクロポストを作成する
+user.microposts.create!(arg)	userに紐付いたマイクロポストを作成する（失敗時に例外を発生）
+user.microposts.build(arg)	userに紐付いた新しいMicropostオブジェクトを返す
+user.microposts.find_by(id: 1)	userに紐付いていて、idが1であるマイクロポストを検索する
